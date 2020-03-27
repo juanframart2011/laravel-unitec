@@ -16,6 +16,10 @@ use Validator;
 
 class UserController extends Controller
 {
+	#Fncion de dashboard
+	public function dashboard( Request $request ){
+		
+	}
 
 	#Vista de registro
 	public function home( Request $request ){

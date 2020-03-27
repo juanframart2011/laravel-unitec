@@ -17,3 +17,8 @@ Route::get( '/', [ 'as' => 'home', 'uses' => 'UserController@home' ] );
 
 Route::post( 'search-career', [ 'as' => 'search-career', 'uses' => 'UserController@search_career' ] );
 Route::post( 'save', [ 'as' => 'save', 'uses' => 'UserController@save' ] );
+
+Route::group(['prefix' => 'user', 'middleware' => 'verifyUser'], function(){#Middlware de User
+
+	Route::get( 'home', [ 'as' => 'home', 'uses' => 'UserController@dashboard' ] );
+});

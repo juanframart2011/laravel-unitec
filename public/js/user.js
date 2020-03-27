@@ -71,7 +71,7 @@ $( document ).ready( function(){
 		$( "#form_user" ).find( 'button' ).attr( 'disabled', true ).html( '<i class="fas fa-spinner fa-spin"></i> Registrando' );
 
 		var returnF = 0;
-		/*var email_validate	=	/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+		var email_validate	=	/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 		$( "#name, #lastName, #lastNameSec, #studyGrade, #career, #gender, #age, #statuCivil, #email, #password, #passwordRe" ).css( "border", "solid 1px #4fea15" );
 		$( this ).find( ".form-group" ).removeClass( 'has-error' );
@@ -191,7 +191,7 @@ $( document ).ready( function(){
 			$( this ).find( ".form-text" ).eq( 9 ).css( "color", "red" ).html( "Son diferentes las contraseñas" );
 			$( this ).find( ".form-group" ).eq( 10 ).addClass( 'has-error' );
 			$( this ).find( ".form-text" ).eq( 10 ).css( "color", "red" ).html( "Son diferentes las contraseñas" );
-		}*/
+		}
 
 		if( returnF == 0 ){
 
