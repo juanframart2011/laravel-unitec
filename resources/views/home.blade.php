@@ -68,7 +68,7 @@
                                 <small id="studyGradeHelp" class="form-text text-muted"></small>
                             </div>
                         </div>
-                        <div class="col-md-6 div-carerr d-none">
+                        <div class="col-md-6 div-carerr d-none" data-active="0">
                             <div class="form-group">
                                 <label for="career">Carerra</label>
                                 <select class="form-control" id="career" name="career" aria-describedby="careerHelp"></select>
