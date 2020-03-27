@@ -6,58 +6,51 @@ $( document ).ready( function(){
 		$( "#career" ).html( "" );
 	}
 	
-	$( "#studyGrade").change( function(){
+	$( "#form_login" ).submit( function( event ){
 
-		var studyGrade = $( this ).val();
+		event.preventDefault();
 
-		$( "#studyGradeHelp" ).html( '' );
+		var button_txt = $( "#form_login" ).find( 'button' ).html();
+		$( "#form_login" ).find( 'button' ).attr( 'disabled', true ).html( '<i class="fas fa-spinner fa-spin"></i> Entrando' );
 
-		if( studyGrade ){
+		var returnF = 0;
+		var email_validate	=	/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
-			$.ajax({
+		$( "email, #password" ).css( "border", "solid 1px #4fea15" );
+		$( this ).find( ".form-group" ).removeClass( 'has-error' );
+		$( this ).find( ".form-text" ).html( "" );
 
-				url: base_url + '/search-career',
-				type: 'POST',
-				dataType: 'json',
-				data: $( "#studyGrade").serialize(),
-				headers:{
-			        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			    }
-			})
-			.done(function( data ){
+		var email = $( "#email" ), password = $( "#password" );
 
-				if( data.result == 1 ){
+		if( !email.val() ){
 
-					if( data.data.length > 0 ){
+			returnF = 1;
+			email.css( "border", "solid 1px red" );
+			$( this ).find( ".form-group" ).eq( 0 ).addClass( 'has-error' );
+			$( this ).find( ".form-text" ).eq( 0 ).css( "color", "red" ).html( "El email es obligatorio" );
+		}
+		if( !email_validate.test( email.val() ) ){
 
-						var option = "<option value=''>Seleccionar Carrera</option>";
-						for( var c = 0; c < data.data.length; c++ ){
+			returnF = 1;
+			email.css( "border", "solid 1px red" );
+			$( this ).find( ".form-group" ).eq( 0 ).addClass( 'has-error' );
+			$( this ).find( ".form-text" ).eq( 0 ).css( "color", "red" ).html( "El email no está en el formato permitido" );
+		}
+		if( !password.val() ){
 
-							option += "<option value='" + data.data[c].career_encrypted + "'>" + data.data[c].career_name + "</option>";
-						}
+			returnF = 1;
+			password.css( "border", "solid 1px red" );
+			$( this ).find( ".form-group" ).eq( 1 ).addClass( 'has-error' );
+			$( this ).find( ".form-text" ).eq( 1 ).css( "color", "red" ).html( "La contraseña es obligatoria" );
+		}
 
-						$( "#career" ).html( option );
-						$( ".div-carerr" ).removeClass( 'd-none' ).attr( "data-active", 1 );
-					}
-					else{
+		if( returnF == 0 ){
 
-						_displayCareer();
-					}
-				}
-				else{
-
-					$( "#studyGradeHelp" ).html( data.message );
-				}
-			})
-			.fail(function( error ){
-
-				button.attr( "disabled", false ).html( "Agregar a La Orden" );
-				console.log( error );
-			});
+			document.getElementById( "form_login" ).submit();
 		}
 		else{
 
-			_displayCareer();
+			$( "#form_login" ).find( 'button' ).attr( 'disabled', false ).html( button_txt );
 		}
 	});
 
@@ -198,6 +191,61 @@ $( document ).ready( function(){
 		else{
 
 			$( "#form_user" ).find( 'button' ).attr( 'disabled', false ).html( button_txt );
+		}
+	});
+
+	$( "#studyGrade").change( function(){
+
+		var studyGrade = $( this ).val();
+
+		$( "#studyGradeHelp" ).html( '' );
+
+		if( studyGrade ){
+
+			$.ajax({
+
+				url: base_url + '/search-career',
+				type: 'POST',
+				dataType: 'json',
+				data: $( "#studyGrade").serialize(),
+				headers:{
+			        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			    }
+			})
+			.done(function( data ){
+
+				if( data.result == 1 ){
+
+					if( data.data.length > 0 ){
+
+						var option = "<option value=''>Seleccionar Carrera</option>";
+						for( var c = 0; c < data.data.length; c++ ){
+
+							option += "<option value='" + data.data[c].career_encrypted + "'>" + data.data[c].career_name + "</option>";
+						}
+
+						$( "#career" ).html( option );
+						$( ".div-carerr" ).removeClass( 'd-none' ).attr( "data-active", 1 );
+					}
+					else{
+
+						_displayCareer();
+					}
+				}
+				else{
+
+					$( "#studyGradeHelp" ).html( data.message );
+				}
+			})
+			.fail(function( error ){
+
+				button.attr( "disabled", false ).html( "Agregar a La Orden" );
+				console.log( error );
+			});
+		}
+		else{
+
+			_displayCareer();
 		}
 	});
 });

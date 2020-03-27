@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get( '/', [ 'as' => 'home', 'uses' => 'UserController@home' ] );
 Route::get( 'login', [ 'as' => 'login', 'uses' => 'UserController@login' ] );
 
+Route::post( 'login', [ 'as' => 'login', 'uses' => 'UserController@validate_login' ] );
 Route::post( 'search-career', [ 'as' => 'search-career', 'uses' => 'UserController@search_career' ] );
 Route::post( 'save', [ 'as' => 'save', 'uses' => 'UserController@save' ] );
 

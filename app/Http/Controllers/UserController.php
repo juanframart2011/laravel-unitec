@@ -276,43 +276,43 @@ class UserController extends Controller
     public function validate_login( Request $request ){
 
 		$messages = [
-    		'password-login:required' => 'El campo Contraseña es oligatorio',
-    		'email-login:required' => 'El campo Email es oligatorio',
-            'email-login:email' => 'No es un formato de email válido',
+    		'password:required' => 'El campo Contraseña es oligatorio',
+    		'email:required' => 'El campo Email es oligatorio',
+            'email:email' => 'El campo Email no es un formato de email válido',
         ];
 
         $validate = Validator::make( $request->all(), [
             
-            'password-login' => 'required|min:6',
-            'email-login' => 'required|email',
+            'password' => 'required|min:6',
+            'email' => 'required|email',
         ], $messages );
         
         if( $validate->fails() ){
 
-            return redirect( 'registro' )
+            return redirect( 'login' )
                         ->withErrors( $validate )
                         ->withInput();
         }
         else{
 
-        	$email = $request->get( "email-login" );
-        	$password = md5( $request->get( "password-login" ) );
+        	$email = $request->get( "email" );
+        	$password = md5( $request->get( "password" ) );
 
-        	$user = User::where( [ "user_email" => $email, "user_password" => $password, "estatus_id" => 1 ] )->where( function( $query ){
-
-        		$query->where( "rol_id", 1 )
-        		->orwhere( "rol_id", 3 );
-        	})->get();
+        	$user = User::where( [ "user_email" => $email, "user_password" => $password, "statu_id" => 1 ] )->get();
 
         	if( count( $user ) > 0 ){
 
+        		$user = $user[0];
+
         		$request->session()->put( [ 'us3R-un1t3c' => $user->user_email, 'us3R-name' => $user->user_name, 'us3R-last-name' => $user->user_lastName, 'us3R-last-name-sec' => $user->user_lastNameSec, 'us3R-un1t3c_id' => $user->user_encrypted ] );
+
+			    return redirect( '/user/home' );
         	}
         	else{
 
         		$validate->errors()->add( 'login', 'los datos son incorrectos' );
                 
-                return redirect( 'registro' )
+                return redirect( 'login' )
                         ->withErrors( $validate )
                         ->withInput();
         	}
