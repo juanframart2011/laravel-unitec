@@ -48,7 +48,7 @@ CREATE TABLE `career` (
 
 LOCK TABLES `career` WRITE;
 /*!40000 ALTER TABLE `career` DISABLE KEYS */;
-INSERT INTO `career` VALUES (1,1,1,'Lic. En Derecho','fd54645',NULL,NULL,NULL),(2,1,1,'Lic. En Finanzas','56hgh',NULL,NULL,NULL),(3,1,2,'Mtria. Admon. De Negocios','ghgf5656',NULL,NULL,NULL),(4,1,2,'Mtria. Direccion de proyectos','tret65465',NULL,NULL,NULL);
+INSERT INTO `career` VALUES (1,1,2,'Lic. En Derecho','fd54645',NULL,NULL,NULL),(2,1,2,'Lic. En Finanzas','56hgh',NULL,NULL,NULL),(3,1,3,'Mtria. Admon. De Negocios','ghgf5656',NULL,NULL,NULL),(4,1,3,'Mtria. Direccion de proyectos','tret65465',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `career` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,7 +136,7 @@ CREATE TABLE `statu_civil` (
   UNIQUE KEY `statuCivil_encrypted_UNIQUE` (`statuCivil_encrypted`),
   KEY `statuCivil_statu_idx` (`statu_id`),
   CONSTRAINT `statuCivil_statu` FOREIGN KEY (`statu_id`) REFERENCES `statu` (`statu_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -145,6 +145,7 @@ CREATE TABLE `statu_civil` (
 
 LOCK TABLES `statu_civil` WRITE;
 /*!40000 ALTER TABLE `statu_civil` DISABLE KEYS */;
+INSERT INTO `statu_civil` VALUES (1,1,'soltero','fgfdg',NULL,NULL,NULL),(2,1,'casado','dffgfd54645',NULL,NULL,NULL),(3,1,'divorciado','6654',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `statu_civil` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -192,7 +193,8 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `statu_id` int(11) NOT NULL DEFAULT '1',
-  `career_id` int(11) NOT NULL,
+  `studyGrade_id` int(11) NOT NULL,
+  `career_id` int(11) DEFAULT NULL,
   `gender_id` int(11) NOT NULL,
   `statuCivil_id` int(11) NOT NULL,
   `user_name` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
@@ -200,7 +202,7 @@ CREATE TABLE `user` (
   `user_encrypted` varchar(350) COLLATE utf8mb4_general_ci NOT NULL,
   `user_lastName` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
   `user_lastNameSec` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
-  `user_age` int(3) NOT NULL,
+  `user_age` int(2) NOT NULL,
   `user_password` varchar(350) COLLATE utf8mb4_general_ci NOT NULL,
   `user_creationDate` datetime NOT NULL,
   `user_lastModification` datetime DEFAULT NULL,
@@ -212,11 +214,13 @@ CREATE TABLE `user` (
   KEY `user_career_idx` (`career_id`),
   KEY `user_gender_idx` (`gender_id`),
   KEY `user_statuCivil_idx` (`statuCivil_id`),
+  KEY `user_studyGrade_idx` (`studyGrade_id`),
   CONSTRAINT `user_career` FOREIGN KEY (`career_id`) REFERENCES `career` (`career_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_gender` FOREIGN KEY (`gender_id`) REFERENCES `gender` (`gender_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_statu` FOREIGN KEY (`statu_id`) REFERENCES `statu` (`statu_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_statuCivil` FOREIGN KEY (`statuCivil_id`) REFERENCES `statu_civil` (`statuCivil_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `user_statuCivil` FOREIGN KEY (`statuCivil_id`) REFERENCES `statu_civil` (`statuCivil_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_studyGrade` FOREIGN KEY (`studyGrade_id`) REFERENCES `study_grade` (`studyGrade_id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -225,6 +229,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (1,1,3,NULL,2,2,'test name','test@laravel-unitec.loc','ec6d64de141c7f794fbb1eff279f5f4e','laravel','unitec',2,'e10adc3949ba59abbe56e057f20f883e','2020-03-27 18:54:58',NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -237,4 +242,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-27  8:26:15
+-- Dump completed on 2020-03-27 13:28:13
