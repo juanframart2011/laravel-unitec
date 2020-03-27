@@ -28,8 +28,6 @@ $( document ).ready( function(){
 
 				if( data.result == 1 ){
 
-					console.log( data );
-					
 					if( data.data.length > 0 ){
 
 						var option = "<option value=''>Seleccionar Carrera</option>";

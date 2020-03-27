@@ -9,6 +9,8 @@ use App\Statu;
 use App\StatuCivil;
 use App\StudyGrade;
 use App\User;
+
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
@@ -18,7 +20,10 @@ class UserController extends Controller
 {
 	#Fncion de dashboard
 	public function dashboard( Request $request ){
-		
+
+		$data["meta_title"] = "Dashboard";
+
+		return view( "dashboard", $data );
 	}
 
 	#Vista de registro
@@ -27,8 +32,23 @@ class UserController extends Controller
 		$data["gender"] = Gender::Where( "statu_id", 1 )->get();
 		$data["statuCivil"] = StatuCivil::Where( "statu_id", 1 )->get();
 		$data["studyGrade"] = StudyGrade::Where( "statu_id", 1 )->get();
+		$data["meta_title"] = "Registro";
 
 		return view( "home", $data );
+	}
+
+	public function login( Request $request ){
+
+		$data["meta_title"] = "Login";
+
+		return view( "login", $data );
+	}
+
+	public function logout( Request $request ){
+
+		$request->session()->flush();
+
+    	return redirect( '/' );
 	}
 
 	#función de registro de usuario
@@ -63,7 +83,7 @@ class UserController extends Controller
             'lastNameSec' => 'required',
             'studyGrade' => 'required|exists:study_grade,studyGrade_encrypted',
             'gender' => 'required|exists:gender,gender_encrypted',
-            'age' => 'required|numeric|max:2',
+            'age' => 'required|numeric|max:99',
             'statuCivil' => 'required',
             'email' => 'required|unique:user,user_email|email',
             'password' => 'required|min:6',
@@ -90,6 +110,7 @@ class UserController extends Controller
 	    		$statuCivil = $request->get( "statuCivil" );
 	    		$user_email = $request->get( "email" );
 	    		$user_password = md5( $request->get( "password" ) );
+	    		$career = $request->get( "career" );
 
 	    		$studyGrade_resut = StudyGrade::Where([ "studyGrade_encrypted" => $studyGrade, "statu_id" => 1 ])->get();
 	    		if( count( $studyGrade_resut ) == 0 ){
@@ -113,7 +134,7 @@ class UserController extends Controller
 	    			$gender_id = $gender_resut[0]->gender_id;
 	    		}
 
-	    		$statuCivil_resut = Gender::Where([ "statuCivil_encrypted" => $statuCivil, "statu_id" => 1 ])->get();
+	    		$statuCivil_resut = StatuCivil::Where([ "statuCivil_encrypted" => $statuCivil, "statu_id" => 1 ])->get();
 	    		if( count( $statuCivil_resut ) == 0 ){
 
 	    			$validate->errors()->add( 'Estado Civil', 'El Estado Civil no existe' );
@@ -124,6 +145,32 @@ class UserController extends Controller
 	    			$statuCivil_id = $statuCivil_resut[0]->statuCivil_id;
 	    		}
 
+	    		#Valido que ese grado tenga o no tenga carrera y venga una selecciona
+	    		$carrerstudyGrade_result = Career::Where([ "studyGrade_id" => $studyGrade_id, "statu_id" => 1 ])->get();
+	    		if( count( $carrerstudyGrade_result ) > 0 && empty( $career ) ){
+
+	    			$validate->errors()->add( 'Falta carrera', 'Este Grado de Estudio tiene carreras y debes elegir una' );
+	    			$validatonCatalog = false;
+	    		}
+	    		elseif( count( $carrerstudyGrade_result ) == 0 ){
+
+	    			$career_id = null;
+	    		}
+	    		else{
+
+	    			$carrer_result = Career::Where([ "career_encrypted" => $career, "statu_id" => 1 ])->get();
+		    		if( count( $carrer_result ) == 0 ){
+
+		    			$validate->errors()->add( 'La carrera', 'La carrera no existe' );
+		    			$validatonCatalog = false;
+
+		    		}
+		    		else{
+
+		    			$career_id = $carrer_result[0]->carrer_id;
+		    		}
+	    		}
+
 	    		if( $validatonCatalog ){
 
 	    			$user = new User;
@@ -132,6 +179,7 @@ class UserController extends Controller
 					$user->user_lastNameSec = $user_lastNameSec;
 					$user->studyGrade_id = $studyGrade_id;
 					$user->gender_id = $gender_id;
+					$user->career_id = $career_id;
 					$user->user_age = $user_age;
 					$user->statuCivil_id = $statuCivil_id;
 					$user->user_password = $user_password;
@@ -142,7 +190,7 @@ class UserController extends Controller
 
 					if( $user->id > 0 ){
 
-						$request->session()->put( [ 'us3R-un1t3c' => $user->user_email, 'us3R-un1t3c_id' => $user->user_encrypted ] );
+						$request->session()->put( [ 'us3R-un1t3c' => $user->user_email, 'us3R-name' => $user->user_name, 'us3R-last-name' => $user->user_lastName, 'us3R-last-name-sec' => $user->user_lastNameSec, 'us3R-un1t3c_id' => $user->user_encrypted ] );
 
 			    		return redirect( '/user/home' );
 			    	}
@@ -224,4 +272,50 @@ class UserController extends Controller
 			}
     	}
     }
+
+    public function validate_login( Request $request ){
+
+		$messages = [
+    		'password-login:required' => 'El campo Contraseña es oligatorio',
+    		'email-login:required' => 'El campo Email es oligatorio',
+            'email-login:email' => 'No es un formato de email válido',
+        ];
+
+        $validate = Validator::make( $request->all(), [
+            
+            'password-login' => 'required|min:6',
+            'email-login' => 'required|email',
+        ], $messages );
+        
+        if( $validate->fails() ){
+
+            return redirect( 'registro' )
+                        ->withErrors( $validate )
+                        ->withInput();
+        }
+        else{
+
+        	$email = $request->get( "email-login" );
+        	$password = md5( $request->get( "password-login" ) );
+
+        	$user = User::where( [ "user_email" => $email, "user_password" => $password, "estatus_id" => 1 ] )->where( function( $query ){
+
+        		$query->where( "rol_id", 1 )
+        		->orwhere( "rol_id", 3 );
+        	})->get();
+
+        	if( count( $user ) > 0 ){
+
+        		$request->session()->put( [ 'us3R-un1t3c' => $user->user_email, 'us3R-name' => $user->user_name, 'us3R-last-name' => $user->user_lastName, 'us3R-last-name-sec' => $user->user_lastNameSec, 'us3R-un1t3c_id' => $user->user_encrypted ] );
+        	}
+        	else{
+
+        		$validate->errors()->add( 'login', 'los datos son incorrectos' );
+                
+                return redirect( 'registro' )
+                        ->withErrors( $validate )
+                        ->withInput();
+        	}
+        }
+	}
 }
