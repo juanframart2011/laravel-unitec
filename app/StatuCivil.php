@@ -24,7 +24,7 @@ class StatuCivil extends Model
      * @var array
      */
     protected $hidden = [
-        'statuCivil_id',
+        'statuCivil_id', 'statu_id'
     ];
 
     /**

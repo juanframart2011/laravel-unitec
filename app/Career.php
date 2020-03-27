@@ -24,7 +24,7 @@ class Career extends Model
      * @var array
      */
     protected $hidden = [
-        'career_id',
+        'career_id', 'statu_id', 'studyGrade_id'
     ];
 
     /**

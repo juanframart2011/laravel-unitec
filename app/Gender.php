@@ -24,7 +24,7 @@ class Gender extends Model
      * @var array
      */
     protected $hidden = [
-        'gender_id',
+        'gender_id', 'statu_id'
     ];
 
     /**

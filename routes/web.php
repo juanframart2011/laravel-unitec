@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get( '/', [ 'as' => 'home', 'uses' => 'UserController@home' ] );
+
+Route::post( 'search-career', [ 'as' => 'search-career', 'uses' => 'UserController@search_career' ] );
+Route::post( 'save', [ 'as' => 'save', 'uses' => 'UserController@save' ] );

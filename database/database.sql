@@ -197,6 +197,7 @@ CREATE TABLE `user` (
   `statuCivil_id` int(11) NOT NULL,
   `user_name` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
   `user_email` varchar(350) COLLATE utf8mb4_general_ci NOT NULL,
+  `user_encrypted` varchar(350) COLLATE utf8mb4_general_ci NOT NULL,
   `user_lastName` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
   `user_lastNameSec` varchar(300) COLLATE utf8mb4_general_ci NOT NULL,
   `user_age` int(3) NOT NULL,
@@ -206,6 +207,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   UNIQUE KEY `user_email_UNIQUE` (`user_email`),
+  UNIQUE KEY `user_encrypted_UNIQUE` (`user_encrypted`),
   KEY `user_statu_idx` (`statu_id`),
   KEY `user_career_idx` (`career_id`),
   KEY `user_gender_idx` (`gender_id`),
@@ -235,4 +237,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-27  1:24:17
+-- Dump completed on 2020-03-27  8:26:15

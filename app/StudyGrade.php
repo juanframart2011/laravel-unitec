@@ -24,7 +24,7 @@ class StudyGrade extends Model
      * @var array
      */
     protected $hidden = [
-        'studyGrade_id',
+        'studyGrade_id', 'statu_id'
     ];
 
     /**
