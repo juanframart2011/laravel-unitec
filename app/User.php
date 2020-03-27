@@ -2,13 +2,12 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use Notifiable;
+    protected $table = "user";
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'user_name', 'user_email', 'user_lastName', 'user_lastNameSec', 'user_age', 'user_password'
     ];
 
     /**
@@ -25,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'user_password', 'user_id',
     ];
 
     /**
@@ -34,6 +33,27 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'user_creationDate' => 'datetime',
+        'user_lastModification' => 'datetime',
     ];
+
+    public function career(){
+
+        return $this->belongsTo( 'App\Statu', 'career_id', 'career_id' );
+    }
+
+    public function gender(){
+
+        return $this->belongsTo( 'App\Gender', 'gender_id', 'gender_id' );
+    }
+
+    public function statu(){
+
+        return $this->belongsTo( 'App\Gender', 'statu_id', 'statu_id' );
+    }
+
+    public function statuCivil(){
+
+        return $this->belongsTo( 'App\statuCivil', 'statuCivil_id', 'statuCivil_id' );
+    }
 }
