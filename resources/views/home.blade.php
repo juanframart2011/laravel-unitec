@@ -23,9 +23,20 @@
                     </div>
                 </div>
 
-                <div class="alert alert-danger text-center d-none" role="alert"></div>
+                @if( !$errors->isEmpty() )
+                    
+                    <div class="alert alert-danger text-center" role="alert">
+                        
+                        @foreach ( $errors->all() as $error )
+                            <strong>{{$error}}</strong><br>
+                        @endforeach
+                    </div>
+                @else
+
+                    <div class="alert alert-danger text-center d-none" role="alert"></div>
+                @endif                
                 
-                <form action="{{ route( 'save' ) }}" id="form_user" name="form_user">
+                <form action="{{ route( 'save' ) }}" id="form_user" method="POST" name="form_user">
 
                     <div class="row">
                         <div class="col-md-12">
@@ -41,7 +52,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="lastName">Apellido Paterno</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" aria-describedby="lastNameHelp" value="{{ old( 'name' ) }}">
+                                <input type="text" class="form-control" id="lastName" name="lastName" aria-describedby="lastNameHelp" value="{{ old( 'lastName' ) }}">
                                 <small id="lastNameHelp" class="form-text text-muted"></small>
                             </div>
                         </div>
@@ -53,7 +64,7 @@
                             </div>
                         </div>
                     </div>
-
+                    {{ csrf_field() }}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

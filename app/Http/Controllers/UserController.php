@@ -9,6 +9,7 @@ use App\Statu;
 use App\StatuCivil;
 use App\StudyGrade;
 use App\User;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use Validator;
@@ -27,121 +28,147 @@ class UserController extends Controller
 	}
 
 	#función de registro de usuario
-	public function register( Request $request ){
+	public function save( Request $request ){
 
     	$messages = [
-    		'user_id:required' => 'El campo es oligatorio',
-    		'user_id:unique' => 'El usuario de facebook ya existe',
-    		'nombre:required' => 'El campo nombre es oligatorio',
-    		'apellido:required' => 'El campo apellido es oligatorio',
-    		'email:required' => 'El email no existe',
+    		'name:required' => 'El campo Nombre es oligatorio',
+    		'lastName:required' => 'El campo Apellido Paterno es oligatorio',
+    		'lastNameSec:required' => 'El campo Apellido Materno es oligatorio',
+    		'studyGrade:required' => 'El campo Grado de Estudio es oligatorio',
+    		'studyGrade:exists' => 'El campo Grado de Estudio contiene un valor no válido',
+    		'gender:required' => 'El campo Género es oligatorio',
+    		'gender:exists' => 'El campo Género contiene un valor no válido',
+    		'age:required' => 'El campo Edad es oligatorio',
+    		'age:numeric' => 'El campo Edad debe ser númerico',
+    		'age:max' => 'El campo Edad tiene como máximo 6 caracteres',
+    		'statuCivil:required' => 'El Estado Civil Nombre es oligatorio',
+    		'email:required' => 'El campo Email es oligatorio',
+    		'email:unique' => 'El campo Email ya existe',
+    		'email:email' => 'El campo Email no está en un formato válido',
+    		'password:required' => 'El campo Contraseña es oligatorio',
+    		'password:min' => 'El campo Contraseña mínimo son 6 caracteres',
+    		'passwordRe:required' => 'El campo Repetir Contraseña es oligatorio',
+    		'passwordRe:min' => 'El campo Repetir Contraseña mínimo son 6 caracteres',
+    		'passwordRe:same' => 'El campo Repetir Contraseña no es igual a la contraseña',
         ];
 
         $validate = Validator::make( $request->all(), [
             
-            'user_id' => 'required',
-            'nombre' => 'required',
-            'apellido' => 'required',
-            'email' => 'required',
+            'name' => 'required',
+            'lastName' => 'required',
+            'lastNameSec' => 'required',
+            'studyGrade' => 'required|exists:study_grade,studyGrade_encrypted',
+            'gender' => 'required|exists:gender,gender_encrypted',
+            'age' => 'required|numeric|max:2',
+            'statuCivil' => 'required',
+            'email' => 'required|unique:user,user_email|email',
+            'password' => 'required|min:6',
+            'passwordRe' => 'required|min:6|same:password',
         ], $messages );
         
         if( $validate->fails() ){
 
-            $error = $validate->errors()->all();
-
-			return response()->json([
-                "result" => 2,
-                "message" => $error
-            ], 200 );
+            return redirect( '/' )
+                ->withErrors( $validate )
+                ->withInput();
         }
     	else{
 
-    		$user_id = $request->get( "user_id" );
-    		$email = $request->get( "email" );
-    		$nombre = $request->get( "nombre" );
-    		$apellido = $request->get( "apellido" );
-    		$nick = $request->get( "nick" );
+    		try{
+	    		$validatonCatalog = true;
 
-    		#Buscamos si el id del usuario ya existe
-			$user_result = User::where( [ "user_facebookId" => $user_id, "estatus_id" => 1, "userType_id" => 2 ] )->where( function( $query ){
+	    		$user_name = $request->get( "name" );
+	    		$user_lastName= $request->get( "lastName" );
+	    		$user_lastNameSec = $request->get( "lastNameSec" );
+	    		$studyGrade = $request->get( "studyGrade" );
+	    		$gender = $request->get( "gender" );
+	    		$user_age = $request->get( "age" );
+	    		$statuCivil = $request->get( "statuCivil" );
+	    		$user_email = $request->get( "email" );
+	    		$user_password = md5( $request->get( "password" ) );
 
-	    		$query->where( "rol_id", 1 )
-	    		->orwhere( "rol_id", 3 );
-	    	})->get();
+	    		$studyGrade_resut = StudyGrade::Where([ "studyGrade_encrypted" => $studyGrade, "statu_id" => 1 ])->get();
+	    		if( count( $studyGrade_resut ) == 0 ){
 
-	    	if( count( $user_result ) == 0 ){
+	    			$validate->errors()->add( 'Grado de Estudio', 'El grado de estudio no existe' );
+	    			$validatonCatalog = false;
+	    		}
+	    		else{
 
-	    		#Buscamos si el id del usuario ya existe
-				$user_resultEmail = User::where( [ "user_email" => $email ] );
+	    			$studyGrade_id = $studyGrade_resut[0]->studyGrade_id;
+	    		}
 
-				if( $user_resultEmail->count() == 0 ){
+	    		$gender_resut = Gender::Where([ "gender_encrypted" => $gender, "statu_id" => 1 ])->get();
+	    		if( count( $gender_resut ) == 0 ){
 
-					$user = new User;
-					$user->user_facebookId = $user_id;
-                    $user->user_password = md5( $user_id );
-					$user->user_nickname = $nick;
-					$user->user_name = $nombre;
-					$user->user_surname = $apellido;
-					$user->user_email = $email;
-					$user->rol_id = 1;
-					$user->userType_id = 2;
+	    			$validate->errors()->add( 'Género', 'El género no existe' );
+	    			$validatonCatalog = false;
+	    		}
+	    		else{
+
+	    			$gender_id = $gender_resut[0]->gender_id;
+	    		}
+
+	    		$statuCivil_resut = Gender::Where([ "statuCivil_encrypted" => $statuCivil, "statu_id" => 1 ])->get();
+	    		if( count( $statuCivil_resut ) == 0 ){
+
+	    			$validate->errors()->add( 'Estado Civil', 'El Estado Civil no existe' );
+	    			$validatonCatalog = false;
+	    		}
+	    		else{
+
+	    			$statuCivil_id = $statuCivil_resut[0]->statuCivil_id;
+	    		}
+
+	    		if( $validatonCatalog ){
+
+	    			$user = new User;
+					$user->user_name = $user_name;
+					$user->user_lastName = $user_lastName;
+					$user->user_lastNameSec = $user_lastNameSec;
+					$user->studyGrade_id = $studyGrade_id;
+					$user->gender_id = $gender_id;
+					$user->user_age = $user_age;
+					$user->statuCivil_id = $statuCivil_id;
+					$user->user_password = $user_password;
+					$user->user_encrypted = md5( $user_email . date( "Y-m-d H:i:s" ) );
+					$user->user_email = $user_email;
 					$user->user_creationDate = date( "Y-m-d H:i:s" );
-
 					$user->save();
 
 					if( $user->id > 0 ){
 
-						$request->session()->forget( "f1t70g0-sponsor" );
+						$request->session()->put( [ 'us3R-un1t3c' => $user->user_email, 'us3R-un1t3c_id' => $user->user_encrypted ] );
 
-						Mail::to( $user->user_email )->send( new UserMail( $user, 'welcome', null ) );
-
-			    		$request->session()->put( [ 'us3R-f1t70g0' => $user->user_email, 'us3R-f1t70g0_id' => $user->id ] );
-
-			    		return response()->json([
-			                "result" => 1,
-			                "message" => "Accediendo a la plataforma"
-			            ], 200 );
+			    		return redirect( '/user/home' );
 			    	}
 					else{
 
-						return response()->json([
-			                "result" => 2,
-			                "message" => "Ocurrio un error al crear el usuario, vuelve a intentarlo"
-			            ], 200 );
+						Log::warning( "User/save() --id :: " . print_r( $_POST, true ) );
+						$validate->errors()->add( 'Error Inesperado', 'lo sentimos, ocurrió un error inesperado' );
+
+						return redirect( '/' )
+			                ->withErrors( $validate )
+			                ->withInput();
 					}
-				}
-				else{
+	    		}
+	    		else{
 
-					return response()->json([
-		                "result" => 1,
-		                "message" => "El correo ya existe, por favor incie sesión desde el sistema con su contraseña"
-		            ], 200 );
-				}
-			}
-			else{
+	    			return redirect( '/' )
+	                ->withErrors( $validate )
+	                ->withInput();
+	    		}
+	    	}
+	    	catch( \Exception $e ){
 
-				$user = User::where( [ "user_facebookId" => $user_id, "estatus_id" => 1, "userType_id" => 2 ] )->where( function( $query ){
+				DB::rollback();
 
-		    		$query->where( "rol_id", 1 )
-		    		->orwhere( "rol_id", 3 );
-		    	})->get();
+				Log::warning( "User/save() -- catch :: " . $e->getMessage() );
+				$validate->errors()->add( 'Error Inesperado', 'lo sentimos, ocurrió un error inesperado' );
 
-		    	if( count( $user ) > 0 ){
-
-		    		$request->session()->put( [ 'us3R-f1t70g0' => $user[0]["user_email"], 'us3R-f1t70g0_id' => $user[0]["user_id"], 'us3R-r0l_id' => $user[0]["rol_id"] ] );
-
-		    		return response()->json([
-		                "result" => 1,
-		                "message" => "Accediendo a la plataforma"
-		            ], 200 );
-		    	}
-		    	else{
-
-		    		return response()->json([
-		                "result" => 2,
-		                "message" => 'El usuario aún no está registrado'
-		            ], 200 );
-		    	}
+				return redirect( '/' )
+	                ->withErrors( $validate )
+	                ->withInput();
 			}
     	}
     }
